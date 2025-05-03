@@ -158,7 +158,7 @@ for i in range(3):
         with cols[j]:
             goal_state.append(
                 st.number_input(f"G{idx}", 0, 8, key=f"g{idx}", value=goal_default[idx], label_visibility="collapsed"))
-# --- Duplicate check before Solve ---
+
 if len(set(start_state)) < 9:
     st.error("⚠️ Duplicate values in Start State! Make sure each number from 0 to 8 appears once.")
 elif len(set(goal_state)) < 9:
@@ -175,12 +175,16 @@ elif st.button("Solve"):
         st.subheader("A* Result")
         if a_path:
             st.success(f"Solved in {len(a_path) - 1} steps, Time: {round(a_time, 4)} sec")
+            cols = st.columns(3)
             for i, step in enumerate(a_path):
-                g = i
-                h = manhattan_distance(step, goal_state)
-                f = g + h
-                st.markdown(f"<h4 style='text-align: center;'>Step {i} — f(n) = g(n) + h(n) = {g} + {h} = {f}</h4>", unsafe_allow_html=True)
-                display_puzzle(step)
+                with cols[i % 3]:
+                    g = i
+                    h = manhattan_distance(step, goal_state)
+                    f = g + h
+                    st.markdown(f"<h5 style='text-align: center;'>Step {i}<br>f(n) = {g} + {h} = {f}</h5>", unsafe_allow_html=True)
+                    display_puzzle(step)
+                if (i + 1) % 3 == 0 and (i + 1) < len(a_path):
+                    cols = st.columns(3)
         else:
             st.error("A* failed to solve.")
 
@@ -190,9 +194,13 @@ elif st.button("Solve"):
                 st.success(f"Hill Climbing solved in {len(h_path) - 1} steps, Time: {round(h_time, 4)} sec")
             else:
                 st.warning(f"Hill Climbing stuck in local minimum. Steps: {len(h_path)-1}, Time: {round(h_time, 4)} sec")
+            cols = st.columns(3)
             for i, step in enumerate(h_path):
-                st.markdown(f"<h4 style='text-align: center;'>Step {i}</h4>", unsafe_allow_html=True)
-                display_puzzle(step)
+                with cols[i % 3]:
+                    st.markdown(f"<h5 style='text-align: center;'>Step {i}</h5>", unsafe_allow_html=True)
+                    display_puzzle(step)
+                if (i + 1) % 3 == 0 and (i + 1) < len(h_path):
+                    cols = st.columns(3)
         else:
             st.error("Hill Climbing failed to solve.")
 
@@ -225,3 +233,6 @@ if st.button("🔁 Run 10 Random Simulations"):
     st.write(f"- A* Success Rate: {df['Solved by A*'].mean() * 100:.1f}%")
     st.write(f"- Hill Climbing Success Rate: {df['Solved by HC'].mean() * 100:.1f}%")
     st.write(f"- A* avg steps: {df['A*_Steps'].mean()} — HC avg steps: {df['HC_Steps'].mean()}")
+
+
+
